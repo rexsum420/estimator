@@ -23,8 +23,6 @@ function useVIN(vin) {
       fetchVINData();
     }
   }, [vin]);
-
-  console.log(vinData);
   return { vinData, error };
 }
 

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Form } from 'react-bootstrap';
 
 const ProblemSeverityModal = ({ show, onHide, problems, onSubmit }) => {
-  const [severity, setSeverity] = useState(1); // Default severity is 1 (Low)
+  const [severity, setSeverity] = useState(1);
 
   useEffect(() => {
-    // Reset severity whenever a new problem is displayed
     setSeverity(1);
   }, [problems]);
 
@@ -15,11 +14,17 @@ const ProblemSeverityModal = ({ show, onHide, problems, onSubmit }) => {
 
   const handleSubmit = () => {
     const problemWithSeverity = {
-      type: problems[0], // Since problems is now expected to be an array with one item
+      type: problems[0],
       severity,
     };
-    onSubmit(problemWithSeverity); // Submit the current problem's severity
-    onHide(); // Hide the modal after submission
+    onSubmit(problemWithSeverity);
+    onHide();
+  };
+
+  const getSeverityLabel = () => {
+    if (severity <= 33) return "Minor";
+    if (severity <= 66) return "No Major/Not Minor";
+    return "Major";
   };
 
   return (
@@ -29,16 +34,16 @@ const ProblemSeverityModal = ({ show, onHide, problems, onSubmit }) => {
       </Modal.Header>
       <Modal.Body>
         <div className="form-group">
-          <label>{problems[0]} Severity:</label> {/* Display the current problem */}
-          <select
-            className="form-control"
+          <label>{problems[0]} Severity:</label>
+          <Form.Range
+            min={1}
+            max={100}
             value={severity}
             onChange={(e) => handleSeverityChange(parseInt(e.target.value))}
-          >
-            <option value="1">Low</option>
-            <option value="2">Medium</option>
-            <option value="3">High</option>
-          </select>
+          />
+          <div className="mt-2">
+            <strong>Severity Level:</strong> {severity} ({getSeverityLabel()})
+          </div>
         </div>
       </Modal.Body>
       <Modal.Footer>

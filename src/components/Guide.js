@@ -5,29 +5,36 @@ import Problems from './guide/Problems';
 import ProblemSeverityModal from './guide/ProblemSeverityModal';
 import Quote from './guide/Quote';
 import useVIN from '../utils/fetchVIN';
+import useModalState from '../utils/useModalState';
+
+const MemoizedConfirmCar = React.memo(ConfirmCar);
+const MemoizedProblems = React.memo(Problems);
+const MemoizedProblemSeverityModal = React.memo(ProblemSeverityModal);
+const MemoizedQuote = React.memo(Quote);
 
 const Guide = () => {
+  const { currentModal, showModal, hideModal } = useModalState();
   const [vin, setVin] = useState('');
-  const [currentModal, setCurrentModal] = useState(null);
   const [selectedProblems, setSelectedProblems] = useState([]);
-  const [currentProblemIndex, setCurrentProblemIndex] = useState(0); // Track the current problem for severity
+  const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
   const [problemsWithSeverity, setProblemsWithSeverity] = useState([]);
   const { vinData, error } = useVIN(vin);
 
   const handleVinSubmit = (vin) => {
     setVin(vin);
-    setCurrentModal('confirmCar');
+    showModal('confirmCar');
   };
 
   const handleCarConfirm = () => {
-    setCurrentModal('problems');
+    showModal('problems');
   };
 
   const handleProblemsSubmit = (problems) => {
+    console.log('Problems submitted:', problems);
     setSelectedProblems(problems);
-    setCurrentProblemIndex(0); // Start with the first problem
+    setCurrentProblemIndex(0);
     setProblemsWithSeverity([]);
-    setCurrentModal('problemSeverity');
+    showModal('problemSeverity');
   };
 
   const handleSeveritySubmit = (problemWithSeverity) => {
@@ -36,45 +43,43 @@ const Guide = () => {
     if (currentProblemIndex < selectedProblems.length - 1) {
       setCurrentProblemIndex(prev => prev + 1);
     } else {
-      setCurrentModal('quote');
+      showModal('quote');
     }
   };
 
   const handleQuote = () => {
-    setCurrentModal(null);
+    hideModal();
   };
 
   useEffect(() => {
-    if (currentModal === 'quote' && currentProblemIndex < selectedProblems.length) {
-      setCurrentProblemIndex(0);
-    }
-  }, [currentModal, selectedProblems.length]);
+    console.log('Modal set:', currentModal);
+  }, [currentModal]);
 
   return (
     <>
       <EnterVin onSubmit={handleVinSubmit} />
       {vinData && (
         <>
-          <ConfirmCar
+          <MemoizedConfirmCar
             show={currentModal === 'confirmCar'}
-            onHide={() => setCurrentModal(null)}
+            onHide={hideModal}
             onConfirm={handleCarConfirm}
             vinData={vinData}
           />
-          <Problems
+          <MemoizedProblems
             show={currentModal === 'problems'}
-            onHide={() => setCurrentModal(null)}
+            onHide={hideModal}
             onSubmit={handleProblemsSubmit}
           />
           {selectedProblems.length > 0 && (
-            <ProblemSeverityModal
+            <MemoizedProblemSeverityModal
               show={currentModal === 'problemSeverity'}
-              onHide={() => setCurrentModal(null)}
+              onHide={hideModal}
               problems={[selectedProblems[currentProblemIndex]]}
               onSubmit={handleSeveritySubmit}
             />
           )}
-          <Quote
+          <MemoizedQuote
             show={currentModal === 'quote'}
             onHide={handleQuote}
             problems={problemsWithSeverity}
