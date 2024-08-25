@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Guide from './components/Guide';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
